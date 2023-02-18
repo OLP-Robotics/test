@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 //import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 //import edu.wpi.first.wpilibj.Timer;
 
@@ -28,7 +29,7 @@ public class Robot extends TimedRobot {
   private XboxController xbox;
   private final WPI_TalonFX talMotor = new WPI_TalonFX(1);
   private final WPI_VictorSPX vicMotor = new WPI_VictorSPX(5);
-  
+   SlewRateLimiter filter = new SlewRateLimiter(0.5);
 
 
   private static final String kDefaultAuto = "Default";
@@ -97,8 +98,10 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-  talMotor.set(xbox.getRightTriggerAxis());
-  vicMotor.set(xbox.getLeftTriggerAxis());
+  double L =filter.calculate(xbox.getLeftTriggerAxis()); 
+  double R =filter.calculate(xbox.getRightTriggerAxis());  
+  talMotor.set(L);
+  vicMotor.set(R);
 }
   /** This function is called once when the robot is disabled. */
   @Override
